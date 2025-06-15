@@ -1,5 +1,5 @@
 // Update the API_BASE_URL to your Hugging Face Space URL
-const API_BASE_URL = 'https://your-username-your-space.hf.space/api/'; // <-- CHANGE THIS
+const API_BASE_URL = 'https://sahilawatramani-crime-analytics-backend.hf.space/api';
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatForm = document.getElementById('chat-form');
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render quick stats
     async function loadQuickStats() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_quick_stats`);
+            const response = await fetch(`${API_BASE_URL}/gr_quick_stats`, { method: 'POST' });
             if (!response.ok) {
                 throw new Error('Failed to load quick stats');
             }
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render filter options
     async function loadFilters() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_filter_options`);
+            const response = await fetch(`${API_BASE_URL}/gr_filter_options`, { method: 'POST' });
             if (!response.ok) {
                 throw new Error('Failed to load filter options');
             }
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render sample queries
     async function loadSampleQueries() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_sample_queries`);
+            const response = await fetch(`${API_BASE_URL}/gr_sample_queries`, { method: 'POST' });
             if (!response.ok) {
                 throw new Error('Failed to load sample queries');
             }
