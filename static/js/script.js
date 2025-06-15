@@ -1,5 +1,5 @@
 // Update the API_BASE_URL to your Hugging Face Space URL
-const API_BASE_URL = 'https://sahilawatramani-crime-analytics-backend.hf.space/api';
+const API_BASE_URL = 'https://sahilawatramani-crime-analytics-backend.hf.space';
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatForm = document.getElementById('chat-form');
