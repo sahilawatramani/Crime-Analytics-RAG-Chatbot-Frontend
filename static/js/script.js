@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render quick stats
     async function loadQuickStats() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_quick_stats`, { method: 'POST' });
+            const response = await fetch(`${API_BASE_URL}/gr_quick_stats`); // GET not POST
             if (!response.ok) {
                 throw new Error('Failed to load quick stats');
             }
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render filter options
     async function loadFilters() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_filter_options`, { method: 'POST' });
+            const response = await fetch(`${API_BASE_URL}/gr_filter_options`);
             if (!response.ok) {
                 throw new Error('Failed to load filter options');
             }
@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render sample queries
     async function loadSampleQueries() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_sample_queries`, { method: 'POST' });
+            const response = await fetch(`${API_BASE_URL}/gr_sample_queries`);
             if (!response.ok) {
                 throw new Error('Failed to load sample queries');
             }
