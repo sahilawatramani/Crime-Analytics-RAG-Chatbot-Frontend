@@ -1,5 +1,5 @@
 // Update the API_BASE_URL to your Hugging Face Space URL
-const API_BASE_URL = 'https://your-username-your-space.hf.space/api/predict'; // <-- CHANGE THIS
+const API_BASE_URL = 'https://your-username-your-space.hf.space/api/'; // <-- CHANGE THIS
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatForm = document.getElementById('chat-form');
