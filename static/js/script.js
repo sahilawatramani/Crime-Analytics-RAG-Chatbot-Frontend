@@ -1,5 +1,10 @@
-// Update the API_BASE_URL to your Hugging Face Space URL
-const API_BASE_URL = 'https://sahilawatramani-crime-analytics-backend.hf.space';
+let gradioClientPromise = null;
+function getGradioClient() {
+    if (!gradioClientPromise) {
+        gradioClientPromise = window.gradio_client.Client.connect("sahilawatramani/crime-analytics-backend");
+    }
+    return gradioClientPromise;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatForm = document.getElementById('chat-form');
@@ -15,50 +20,40 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.value = '';
 
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_query`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ query: query }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Something went wrong');
-            }
-
-            const result = await response.json();
+            const client = await getGradioClient();
+            const result = await client.predict("/gr_query", { query });
             console.log(result); // For debugging: see the actual API response structure
-            
+            const response = result.data;
             // Robustly select the main answer/summary
             let mainText = '';
-            if (typeof result.summary === 'string' && result.summary.trim() !== '') {
-                mainText = result.summary;
-            } else if (result.results && typeof result.results.summary === 'string' && result.results.summary.trim() !== '') {
-                mainText = result.results.summary;
-            } else if (typeof result.answer === 'string' && result.answer.trim() !== '') {
-                mainText = result.answer;
-            } else if (typeof result.response === 'string' && result.response.trim() !== '') {
-                mainText = result.response;
+            if (typeof response.summary === 'string' && response.summary.trim() !== '') {
+                mainText = response.summary;
+            } else if (response.results && typeof response.results.summary === 'string' && response.results.summary.trim() !== '') {
+                mainText = response.results.summary;
+            } else if (typeof response.answer === 'string' && response.answer.trim() !== '') {
+                mainText = response.answer;
+            } else if (typeof response.response === 'string' && response.response.trim() !== '') {
+                mainText = response.response;
+            } else if (typeof response === 'string' && response.trim() !== '') {
+                mainText = response;
             } else {
                 mainText = 'No summary or answer available.';
             }
             appendMessage(mainText, 'bot');
-            
+
             // Display sources if available (especially for RAG responses)
-            if (result.sources && result.sources.length > 0) {
-                appendSources(result.sources, result.analysis_type);
+            if (response.sources && response.sources.length > 0) {
+                appendSources(response.sources, response.analysis_type);
             }
-            
+
             // Display retrieved documents for RAG responses
-            if (result.retrieved_documents && result.retrieved_documents.length > 0) {
-                appendRetrievedDocuments(result.retrieved_documents);
+            if (response.retrieved_documents && response.retrieved_documents.length > 0) {
+                appendRetrievedDocuments(response.retrieved_documents);
             }
-            
+
             // Handle visualizations if available
-            if (result.visualizations && result.visualizations.length > 0) {
-                appendVisualizations(result.visualizations);
+            if (response.visualizations && response.visualizations.length > 0) {
+                appendVisualizations(response.visualizations);
             }
 
         } catch (error) {
@@ -195,13 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render quick stats
     async function loadQuickStats() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_quick_stats`); // GET not POST
-            if (!response.ok) {
-                throw new Error('Failed to load quick stats');
-            }
-            const stats = await response.json();
+            const client = await getGradioClient();
+            const result = await client.predict("/gr_quick_stats", {});
+            const stats = result.data;
             const quickStatsDiv = document.getElementById('quick-stats');
-            
             quickStatsDiv.innerHTML = `
                 <div class="stat-item">
                     <div class="value">${stats.total_records.toLocaleString()}</div>
@@ -229,11 +221,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render filter options
     async function loadFilters() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_filter_options`);
-            if (!response.ok) {
-                throw new Error('Failed to load filter options');
-            }
-            const filterOptions = await response.json();
+            const client = await getGradioClient();
+            const result = await client.predict("/gr_filter_options", {});
+            const filterOptions = result.data;
             const filtersDiv = document.getElementById('filters');
 
             // Helper function to create checkbox group HTML
@@ -307,11 +297,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to fetch and render sample queries
     async function loadSampleQueries() {
         try {
-            const response = await fetch(`${API_BASE_URL}/gr_sample_queries`);
-            if (!response.ok) {
-                throw new Error('Failed to load sample queries');
-            }
-            const categories = await response.json();
+            const client = await getGradioClient();
+            const result = await client.predict("/gr_sample_queries", {});
+            const categories = result.data;
             const sampleQueriesDiv = document.getElementById('sample-queries');
             sampleQueriesDiv.innerHTML = ''; // Clear existing content
 
