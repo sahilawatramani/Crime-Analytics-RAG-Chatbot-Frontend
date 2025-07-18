@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from gradio_client import Client
 import requests
 
@@ -9,22 +9,22 @@ def gr_query():
     query = request.json.get("query")
     response = client.predict(query,api_name="/gr_query")
     
-    return jsonify(response), response.status_code
+    return response
 
 @app.route("/api/gr_quick_stats", methods=["GET"])
 def gr_quick_stats():
     response = client.predict(api_name="/gr_quick_stats")
-    return jsonify(response), response.status_code
+    return response
 
 @app.route("/api/gr_filter_options", methods=["GET"])
 def gr_filter_options():
     response = client.predict(api_name="/gr_filter_options")
-    return jsonify(response), response.status_code
+    return response
 
 @app.route("/api/gr_sample_queries", methods=["GET"])
 def gr_sample_queries():
     response = result = client.predict(api_name="/gr_sample_queries")
-    return jsonify(response), response.status_code
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True) 
