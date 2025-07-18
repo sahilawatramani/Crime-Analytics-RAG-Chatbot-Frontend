@@ -1,8 +1,14 @@
-from flask import Flask, request, jsonify
+
 from gradio_client import Client
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 client = Client("sahilawatramani/crime-analytics-backend")
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 @app.route("/api/gr_query", methods=["POST"])
 def gr_query():
