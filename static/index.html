@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crime Analytics RAG Chatbot</title>
+  <link rel="stylesheet" href="static/css/style.css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+  <div class="main-wrapper">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>📊 Analytics Hub</h2>
+      </div>
+      <div class="sidebar-section">
+        <h3>⚡ Quick Stats</h3>
+        <div id="quick-stats" class="stats-grid">
+          <!-- Quick stats will be loaded here -->
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <h3>🔍 Filters</h3>
+        <div id="filters">
+          <!-- Filters will be loaded here -->
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <h3>💬 Sample Queries</h3>
+        <div id="sample-queries">
+          <!-- Sample queries will be loaded here -->
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <header>
+        <h1>🚨 Crime Analytics RAG Chatbot: India (2001-2014)</h1>
+        <p>AI-Powered Analysis of Crimes Against Women in India</p>
+      </header>
+
+      <div class="chat-container">
+        <div id="messages" class="messages">
+          <!-- Chat messages will be appended here -->
+        </div>
+        <form id="chat-form" class="chat-input-form">
+          <input
+            type="text"
+            id="user-input"
+            placeholder="e.g., 'Show me rape cases in Delhi from 2010 to 2012'"
+            required
+          />
+          <button type="submit">Send 🚀</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inline JavaScript to fetch API data and update the UI -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      loadQuickStats();
+      loadFilters();
+      loadSampleQueries();
+
+      const form = document.getElementById("chat-form");
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const input = document.getElementById("user-input");
+        const query = input.value.trim();
+        if (!query) return;
+
+        appendMessage("user", query);
+        input.value = "";
+
+        const response = await sendChatQuery(query);
+        appendMessage("bot", response);
+      });
+    });
+
+    async function loadQuickStats() {
+      try {
+        const res = await fetch("/api/gr_quick_stats");
+        if (!res.ok) throw new Error("Failed to load quick stats");
+        const data = await res.json();
+        renderQuickStats(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadFilters() {
+      try {
+        const res = await fetch("/api/gr_filter_options");
+        if (!res.ok) throw new Error("Failed to load filters");
+        const data = await res.json();
+        renderFilters(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function loadSampleQueries() {
+      try {
+        const res = await fetch("/api/gr_sample_queries");
+        if (!res.ok) throw new Error("Failed to load sample queries");
+        const data = await res.json();
+        renderSampleQueries(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function sendChatQuery(query) {
+      try {
+        const res = await fetch("/api/gr_query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+        if (!res.ok) throw new Error("Chat query failed");
+        const data = await res.json();
+        return data.answer || JSON.stringify(data);
+      } catch (err) {
+        console.error(err);
+        return "Sorry, something went wrong.";
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const messages = document.getElementById("messages");
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender);
+      msgDiv.textContent = text;
+      messages.appendChild(msgDiv);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function renderQuickStats(data) {
+      const container = document.getElementById("quick-stats");
+      container.innerHTML = `
+        <p><strong>Total Records:</strong> ${data.total_records}</p>
+        <p><strong>Years Range:</strong> ${data.years_range[0]} - ${data.years_range[1]}</p>
+        <p><strong>States Count:</strong> ${data.states_count}</p>
+        <p><strong>Crime Types:</strong> ${data.crime_types.join(", ")}</p>
+      `;
+    }
+
+    function renderFilters(data) {
+      const container = document.getElementById("filters");
+      container.innerHTML = "";
+      if (data.states) {
+        container.innerHTML += `<label>State:</label>
+          <select id="state-filter">
+            ${data.states.map((s) => `<option value="${s}">${s}</option>`).join("")}
+          </select>`;
+      }
+      // Add more filters as needed
+    }
+
+    function renderSampleQueries(data) {
+      const container = document.getElementById("sample-queries");
+      container.innerHTML = "";
+      if (Array.isArray(data)) {
+        data.forEach((q) => {
+          const queryDiv = document.createElement("div");
+          queryDiv.classList.add("sample-query");
+          queryDiv.textContent = q;
+          queryDiv.style.cursor = "pointer";
+          queryDiv.style.margin = "5px 0";
+          queryDiv.addEventListener("click", () => {
+            document.getElementById("user-input").value = q;
+          });
+          container.appendChild(queryDiv);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
